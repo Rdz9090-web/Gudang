@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GudangPro - Stok Gudang</title>
+  <style>
+    :root {
+      --navy: #0d1726;
+      --blue: #087db5;
+      --blue-light: #eaf6fb;
+      --green: #0c9f72;
+      --red: #d94c4c;
+      --text: #142131;
+      --muted: #718096;
+      --line: #dce3e8;
+      --bg: #f7f9fa;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login-page {
+      min-height: 100vh;
+      background: var(--navy);
+      color: white;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    .logo {
+      color: white;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -2px;
+    }
+
+    .logo span {
+      color: #24a4d7;
+    }
+
+    .login-logo {
+      position: absolute;
+      top: 32px;
+      left: 6%;
+    }
+
+    .login-box {
+      width: min(430px, 100%);
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 0 0 10px;
+    }
+
+    .login-box .eyebrow {
+      color: #55b8df;
+    }
+
+    .login-box h1 {
+      font-size: 42px;
+      line-height: 1.08;
+      margin: 0 0 14px;
+    }
+
+    .login-box p {
+      color: #aab8c5;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 7px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(8, 125, 181, .12);
+    }
+
+    .login-box input {
+      background: #172638;
+      border-color: #304252;
+      color: white;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 5px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      color: white;
+      background: var(--blue);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-danger {
+      color: white;
+      background: var(--red);
+    }
+
+    .btn-wide {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .error {
+      color: #ff9d9d;
+      background: rgba(255, 90, 90, .1);
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 235px;
+      background: var(--navy);
+      color: #b8c5d1;
+      padding: 28px 15px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+
+    .sidebar .logo {
+      padding: 0 17px 45px;
+    }
+
+    .sidebar nav {
+      display: grid;
+      gap: 7px;
+    }
+
+    .nav-btn,
+    .logout-btn {
+      border: 0;
+      background: none;
+      color: inherit;
+      text-align: left;
+      padding: 13px 17px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: #17344d;
+      color: white;
+    }
+
+    .logout-btn {
+      margin-top: auto;
+    }
+
+    .main {
+      width: calc(100% - 235px);
+      margin-left: 235px;
+    }
+
+    .topbar {
+      height: 92px;
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 0 5.5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .mobile-menu {
+      display: none;
+      border: 0;
+      background: none;
+      font-size: 22px;
+    }
+
+    .admin {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin strong {
+      background: var(--blue-light);
+      color: var(--blue);
+      border-radius: 50%;
+      padding: 10px 12px;
+    }
+
+    .admin small {
+      display: block;
+      color: var(--green);
+      margin-top: 3px;
+    }
+
+    .page {
+      padding: 52px 5.5%;
+      max-width: 1300px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      padding-bottom: 45px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 1.08;
+      margin: 0 0 12px;
+    }
+
+    .hero h1 span {
+      color: var(--blue);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-block: 1px solid var(--line);
+      margin-bottom: 50px;
+    }
+
+    .stat {
+      padding: 22px 25px;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat:first-child {
+      padding-left: 0;
+    }
+
+    .stat:last-child {
+      border: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 29px;
+      margin: 9px 0;
+    }
+
+    .stat small {
+      font-size: 12px;
+      font-weight: normal;
+    }
+
+    .green {
+      color: var(--green);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .section-title,
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .section-title h3,
+    .toolbar h3 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .link-btn {
+      color: var(--blue);
+      background: none;
+      border: 0;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .inventory {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .item-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .item-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-weight: bold;
+    }
+
+    .item-card b {
+      font-size: 13px;
+    }
+
+    .item-card small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .item-stock {
+      margin-left: auto;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      background: white;
+      border: 1px solid var(--line);
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 680px;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f5f8f9;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    th,
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf1f3;
+    }
+
+    td small {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 7px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 10px;
+      margin-left: 5px;
+    }
+
+    .badge.in {
+      background: #e8f7f1;
+      color: var(--green);
+    }
+
+    .badge.out {
+      background: #fff0f0;
+      color: var(--red);
+    }
+
+    .delete-btn {
+      border: 0;
+      background: none;
+      color: var(--red);
+      font-size: 16px;
+    }
+
+    .report-box {
+      background: var(--blue-light);
+      border-left: 4px solid var(--blue);
+      padding: 22px 25px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .report-box h3 {
+      margin: 0;
+    }
+
+    .report-summary {
+      display: flex;
+      gap: 28px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .report-summary strong {
+      display: block;
+      color: var(--text);
+      font-size: 18px;
+      margin-top: 5px;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 38px;
+      text-align: center;
+      font-size: 13px;
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 17, 28, .82);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      z-index: 10;
+    }
+
+    .modal {
+      width: min(510px, 100%);
+      background: white;
+      border-radius: 7px;
+      padding: 30px;
+      position: relative;
+    }
+
+    .modal h3 {
+      margin: 0 0 24px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      border: 0;
+      background: none;
+      font-size: 22px;
+      color: var(--muted);
+    }
+
+    .modal form {
+      display: grid;
+      gap: 5px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 25px;
+      bottom: 25px;
+      background: var(--navy);
+      color: white;
+      border-left: 4px solid var(--green);
+      padding: 14px 18px;
+      font-size: 12px;
+      z-index: 20;
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        width: 68px;
+        padding: 23px 8px;
+      }
+
+      .sidebar .logo {
+        padding: 0 10px 44px;
+        font-size: 0;
+      }
+
+      .sidebar .logo:first-letter {
+        font-size: 22px;
+      }
+
+      .sidebar nav button,
+      .logout-btn {
+        padding: 13px;
+        text-align: center;
+        font-size: 0;
+      }
+
+      .sidebar.mobile-open {
+        width: 235px;
+      }
+
+      .sidebar.mobile-open nav button,
+      .sidebar.mobile-open .logout-btn {
+        text-align: left;
+        font-size: 13px;
+        padding: 13px 17px;
+      }
+
+      .main {
+        width: calc(100% - 68px);
+        margin-left: 68px;
+      }
+
+      .topbar {
+        height: 78px;
+        padding: 0 20px;
+      }
+
+      .mobile-menu {
+        display: block;
+        margin-right: 13px;
+      }
+
+      .topbar-left {
+        display: flex;
+        align-items: center;
+      }
+
+      .admin span {
+        display: none;
+      }
+
+      .page {
+        padding: 35px 20px;
+      }
+
+      .hero {
+        display: block;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+      }
+
+      .actions {
+        margin-top: 25px;
+      }
+
+      .actions .btn {
+        flex: 1;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stat,
+      .stat:first-child {
+        padding: 16px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stat:last-child {
+        border-bottom: 0;
+      }
+
+      .inventory {
+        grid-template-columns: 1fr;
+      }
+
+      .report-box {
+        display: block;
+      }
+
+      .report-summary {
+        margin-top: 18px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const ADMIN_EMAIL = "admin@gudang.local";
+    const ADMIN_PASSWORD = "admin123";
+
+    const state = {
+      page: "overview",
+      modal: null,
+      mobileOpen: false,
+      items: JSON.parse(localStorage.getItem("gudang_items") || "[]"),
+      transactions: JSON.parse(localStorage.getItem("gudang_transactions") || "[]")
+    };
+
+    function saveData() {
+      localStorage.setItem("gudang_items", JSON.stringify(state.items));
+      localStorage.setItem("gudang_transactions", JSON.stringify(state.transactions));
+    }
+
+    function isLoggedIn() {
+      return sessionStorage.getItem("gudang_logged_in") === "true";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function stockFor(itemId) {
+      return state.transactions
+        .filter(t => t.itemId === itemId)
+        .reduce((total, t) => {
+          const value = Number(t.quantity) * Number(t.conversion);
+          return total + (t.type === "in" ? value : -value);
+        }, 0);
+    }
+
+    function showToast(message, type = "success") {
+      const old = document.querySelector(".toast");
+      if (old) old.remove();
+
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.style.borderLeftColor = type === "error" ? "var(--red)" : "var(--green)";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => toast.remove(), 2800);
+    }
+
+    function render() {
+      if (!isLoggedIn()) {
+        renderLogin();
+      } else {
+        renderApp();
+      }
+    }
+
+    function renderLogin() {
+      document.getElementById("app").innerHTML = `
+        <main class="login-page">
+          <div class="logo login-logo">GP<span>/</span></div>
+
+          <section class="login-box">
+            <p class="eyebrow">GUDANGPRO / ADMIN</p>
+            <h1>Kelola stok tanpa hambatan.</h1>
+            <p>
+              Masuk untuk mencatat barang, memantau persediaan,
+              dan melihat laporan gudang.
+            </p>
+
+            <form id="loginForm">
+              <label>
+                Email
+                <input id="loginEmail" type="email" required value="${ADMIN_EMAIL}">
+              </label>
+
+              <label>
+                Kata sandi
+                <input id="loginPassword" type="password" required value="${ADMIN_PASSWORD}">
+              </label>
+
+              <div id="loginError"></div>
+
+              <button class="btn btn-primary btn-wide" type="submit">
+                Masuk ke dashboard <span>→</span>
+              </button>
+            </form>
+          </section>
+        </main>
+      `;
+
+      document.getElementById("loginForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+        const password = document.getElementById("loginPassword").value;
+
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          sessionStorage.setItem("gudang_logged_in", "true");
+          render();
+        } else {
+          document.getElementById("loginError").innerHTML =
+            `<div class="error">Email atau kata sandi salah.</div>`;
+        }
+      });
+    }
+
+    function navButton(page, label) {
+      return `
+        <button class="nav-btn ${state.page === page ? "active" : ""}" data-page="${page}">
+          ${label}
+        </button>
+      `;
+    }
+
+    function renderApp() {
+      document.getElementById("app").innerHTML = `
+        <div class="app">
+          <aside class="sidebar ${state.mobileOpen ? "mobile-open" : ""}">
+            <div class="logo">GP<span>/</span></div>
+
+            <nav>
+              ${navButton("overview", "▦ &nbsp; Ringkasan")}
+              ${navButton("items", "▧ &nbsp; Daftar Barang")}
+              ${navButton("transactions", "▤ &nbsp; Transaksi")}
+              ${navButton("reports", "▥ &nbsp; Laporan Bulanan")}
+            </nav>
+
+            <button class="logout-btn" id="logoutBtn">⇥ &nbsp; Keluar</button>
+          </aside>
+
+          <main class="main">
+            <header class="topbar">
+              <div class="topbar-left">
+                <button class="mobile-menu" id="mobileMenu">☰</button>
+                <div>
+                  <p class="eyebrow">RUANG KERJA / ${state.page.toUpperCase()}</p>
+                  <h2>${pageTitle()}</h2>
+                </div>
+              </div>
+
+              <div class="admin">
+                <strong>A</strong>
+                <span>
+                  Admin gudang
+                  <small>Online</small>
+                </span>
+              </div>
+            </header>
+
+            <section id="pageContent"></section>
+          </main>
+        </div>
+      `;
+
+      document.querySelectorAll("[data-page]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.page = button.dataset.page;
+          state.mobileOpen = false;
+          renderApp();
+        });
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        sessionStorage.removeItem("gudang_logged_in");
+        render();
+      });
+
+      document.getElementById("mobileMenu").addEventListener("click", () => {
+        state.mobileOpen = !state.mobileOpen;
+        renderApp();
+      });
+
+      renderPageContent();
+    }
+
+    function pageTitle() {
+      const titles = {
+        overview: "Ringkasan gudang",
+        items: "Daftar barang",
+        transactions: "Riwayat transaksi",
+        reports: "Laporan bulanan"
+      };
+
+      return titles[state.page];
+    }
+
+    function renderPageContent() {
+      const content = document.getElementById("pageContent");
+
+      if (state.page === "overview") {
+        content.innerHTML = overviewPage();
+      } else if (state.page === "items") {
+        content.innerHTML = itemsPage();
+      } else if (state.page === "transactions") {
+        content.innerHTML = transactionsPage();
+      } else {
+        content.innerHTML = reportsPage();
+      }
+
+      bindPageActions();
+    }
+
+    function overviewPage() {
+      const total = state.items.reduce((sum, item) => sum + stockFor(item.id), 0);
+      const incoming = state.transactions.filter(t => t.type === "in").length;
+
+      const cards = state.items.slice(0, 4).map(item => `
+        <div class="item-card">
+          <div class="item-icon">${escapeHtml(item.name.slice(0, 2).toUpperCase())}</div>
+          <div>
+            <b>${escapeHtml(item.name)}</b>
+            <small>${escapeHtml(item.barcode)} · 1 ${escapeHtml(item.unit)} = ${item.conversion} pcs</small>
+          </div>
+          <div class="item-stock">${stockFor(item.id).toLocaleString("id-ID")} <small>pcs</small></div>
+        </div>
+      `).join("");
+
+      return `
+        <div class="page">
+          <div class="hero">
+            <div>
+              <p class="eyebrow" style="color:var(--blue)">OPERASIONAL HARI INI</p>
+              <h1>Stok yang terkendali,<br><span>gudang yang siap.</span></h1>
+              <p class="muted">Pantau semua pergerakan barang dalam satu tempat.</p>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-primary" data-modal="in">＋ Stok masuk</button>
+              <button class="btn btn-secondary" data-modal="out">－ Stok keluar</button>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span>Total stok</span>
+              <strong>${total.toLocaleString("id-ID")} <small>pcs</small></strong>
+              <span class="green">↑ Aktif</span>
+            </div>
+            <div class="stat">
+              <span>Jenis barang</span>
+              <strong>${state.items.length}</strong>
+              <span>Terdaftar</span>
+            </div>
+            <div class="stat">
+              <span>Transaksi masuk</span>
+              <strong>${incoming}</strong>
+              <span>Bertambah</span>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">INVENTARIS / LIVE</p>
+              <h3>Stok terkini</h3>
+            </div>
+            <button class="link-btn" id="viewItems">Lihat semua →</button>
+          </div>
+
+          <div class="${cards ? "inventory" : ""}">
+            ${cards || `<div class="empty">Belum ada barang. Tambahkan barang pertama Anda.</div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function itemsPage() {
+      const rows = state.items.map(item => `
+        <tr>
+          <td><b>${escapeHtml(item.name)}</b></td>
+          <td>${escapeHtml(item.barcode)}</td>
+          <td>
+            1 ${escapeHtml(item.unit)}
+            <span class="badge">${item.conversion} pcs</span>
+          </td>
+          <td><b>${stockFor(item.id).toLocaleString("id-ID")} pcs</b></td>
+          <td>
+            <button class="delete-btn" data-delete="${item.id}">×</button>
+          </td>
+        </tr>
+      `).join("");
+
+      return `
+        <div class="page">
+          <div class="toolbar">
+            <div>
+              <p class="muted">${state.items.length} jenis barang tercatat</p>
+            </div>
+            <button class="btn btn-primary" data-modal="item">＋ Tambah barang</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Barang</th>
+                  <th>Barcode</th>
+                  <th>Satuan & konversi</th>
+                  <th>Stok tersedia</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || `<tr><td colspan="5" class="empty">Belum ada barang.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function transactionsPage() {
+      const rows = [...state.transactions]
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map(transaction => {
+          const item = state.items.find(i => i.id === transaction.itemId);
+
+          return `
+            <tr>
+              <td>${escapeHtml(transaction.date)}</td>
+              <td>${escapeHtml(item?.name || "Barang dihapus")}</td>
+              <td>
+                <span class="badge ${transaction.type}">
+                  ${transaction.type === "in" ? "MASUK" : "KELUAR"}
+                </span>
+              </td>
+              <td>
+                <b>${transaction.quantity} ${escapeHtml(transaction.unit)}</b>
+                <small>(${transaction.quantity * transaction.conversion} pcs)</small>
+              </td>
+              <td>${escapeHtml(transaction.note || "—")}</td>
+            </tr>
+          `;
+        }).join("");
+
+      return `
+        <div class="page">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Barang</th>
+                  <th>Jenis</th>
+                  <th>Jumlah</th>
+                  <th>Catatan</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || `<tr><td colspan="5" class="empty">Belum ada transaksi.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function reportsPage() {
+      const month = new Date().toISOString().slice(0, 7);
+      const report = state.items.map(item => {
+        const transactions = state.transactions.filter(
+          t => t.itemId === item.id && t.date.startsWith(month)
+        );
+
+        const masuk = transactions
+          .filter(t => t.type === "in")
+          .reduce((sum, t) => sum + t.quantity * t.conversion, 0);
+
+        const keluar = transactions
+          .filter(t => t.type === "out")
+          .reduce((sum, t) => sum + t.quantity * t.conversion, 0);
+
+        return {
+          item,
+          masuk,
+          keluar,
+          sisa: masuk - keluar
+        };
+      });
+
+      const totalMasuk = report.reduce((sum, row) => sum + row.masuk, 0);
+      const totalKeluar = report.reduce((sum, row) => sum + row.keluar, 0);
+
+      const rows = report.map(row => `
+        <tr>
+          <td>
+            <b>${escapeHtml(row.item.name)}</b>
+            <small>${escapeHtml(row.item.barcode)}</small>
+          </td>
+          <td class="green">+${row.masuk} pcs</td>
+          <td class="red">-${row.keluar} pcs</td>
+          <td><b>${row.sisa} pcs</b></td>
+        </tr>
+      `).join("");
+
+      return `
+        <div class="page">
+          <div class="report-box">
+            <div>
+              <p class="eyebrow" style="color:var(--blue)">PERIODE LAPORAN</p>
+              <h3>${new Date().toLocaleDateString("id-ID", {
+                month: "long",
+                year: "numeric"
+              })}</h3>
+            </div>
+
+            <div class="report-summary">
+              <span>Masuk<strong>${totalMasuk.toLocaleString("id-ID")} pcs</strong></span>
+              <span>Keluar<strong>${totalKeluar.toLocaleString("id-ID")} pcs</strong></span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Barang</th>
+                  <th>Stok masuk</th>
+                  <th>Stok keluar</th>
+                  <th>Sisa periode</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows || `<tr><td colspan="4" class="empty">Belum ada data laporan.</td></tr>`}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function bindPageActions() {
+      document.querySelectorAll("[data-modal]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.modal = button.dataset.modal;
+          renderModal();
+        });
+      });
+
+      const viewItems = document.getElementById("viewItems");
+      if (viewItems) {
+        viewItems.addEventListener("click", () => {
+          state.page = "items";
+          renderApp();
+        });
+      }
+
+      document.querySelectorAll("[data-delete]").forEach(button => {
+        button.addEventListener("click", () => {
+          const id = button.dataset.delete;
+
+          if (!confirm("Hapus barang ini? Riwayat transaksinya juga akan dihapus.")) {
+            return;
+          }
+
+          state.items = state.items.filter(item => item.id !== id);
+          state.transactions = state.transactions.filter(t => t.itemId !== id);
+          saveData();
+          renderPageContent();
+          showToast("Barang berhasil dihapus");
+        });
+      });
+    }
+
+    function renderModal() {
+      const isItem = state.modal === "item";
+      const isIncoming = state.modal === "in";
+
+      const itemOptions = state.items.map(item =>
+        `<option value="${item.id}">${escapeHtml(item.name)}</option>`
+      ).join("");
+
+      document.body.insertAdjacentHTML("beforeend", `
+        <div class="modal-bg" id="modalBg">
+          <div class="modal">
+            <button class="modal-close" id="closeModal">×</button>
+            <p class="eyebrow" style="color:var(--blue)">
+              ${isItem ? "INVENTARIS" : "TRANSAKSI"}
+            </p>
+            <h3>
+              ${isItem ? "Tambah barang" : `Stok ${isIncoming ? "masuk" : "keluar"}`}
+            </h3>
+
+            <form id="modalForm">
+              ${
+                isItem
+                ? `
+                  <label>
+                    Nama barang
+                    <input name="name" required placeholder="Contoh: Air mineral">
+                  </label>
+
+                  <label>
+                    Kode barcode
+                    <input name="barcode" required placeholder="899...">
+                  </label>
+
+                  <div class="form-grid">
+                    <label>
+                      Satuan utama
+                      <input name="unit" required placeholder="dus">
+                    </label>
+
+                    <label>
+                      Isi per satuan
+                      <input name="conversion" type="number" min="1" required placeholder="24">
+                    </label>
+                  </div>
+                `
+                : `
+                  <label>
+                    Barang
+                    <select name="itemId" id="transactionItem" required>
+                      ${itemOptions}
+                    </select>
+                  </label>
+
+                  <div class="form-grid">
+                    <label>
+                      Jumlah
+                      <input name="quantity" type="number" min="1" required>
+                    </label>
+
+                    <label>
+                      Satuan
+                      <select name="unit" id="transactionUnit">
+                        <option value="pcs">pcs</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <label>
+                    Tanggal
+                    <input name="date" type="date" required value="${new Date().toISOString().slice(0, 10)}">
+                  </label>
+
+                  <label>
+                    Catatan
+                    <textarea name="note" rows="3" placeholder="Opsional"></textarea>
+                  </label>
+                `
+              }
+
+              <button class="btn btn-primary btn-wide" type="submit">
+                Simpan data <span>→</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      `);
+
+      document.getElementById("closeModal").addEventListener("click", closeModal);
+      document.getElementById("modalBg").addEventListener("click", event => {
+        if (event.target.id === "modalBg") closeModal();
+      });
+
+      if (!isItem) {
+        updateTransactionUnits();
+
+        document.getElementById("transactionItem").addEventListener("change", updateTransactionUnits);
+      }
+
+      document.getElementById("modalForm").addEventListener("submit", saveModal);
+    }
+
+    function updateTransactionUnits() {
+      const itemId = document.getElementById("transactionItem").value;
+      const item = state.items.find(i => i.id === itemId);
+      const unitSelect = document.getElementById("transactionUnit");
+
+      unitSelect.innerHTML = `
+        <option value="pcs">pcs</option>
+        ${item ? `<option value="${escapeHtml(item.unit)}">${escapeHtml(item.unit)}</option>` : ""}
+      `;
+    }
+
+    function saveModal(event) {
+      event.preventDefault();
+
+      const form = new FormData(event.target);
+
+      if (state.modal === "item") {
+        const item = {
+          id: crypto.randomUUID(),
+          name: form.get("name").trim(),
+          barcode: form.get("barcode").trim(),
+          unit: form.get("unit").trim(),
+          conversion: Number(form.get("conversion"))
+        };
+
+        state.items.push(item);
+        saveData();
+        closeModal();
+        renderPageContent();
+        showToast("Barang berhasil ditambahkan");
+        return;
+      }
+
+      const itemId = form.get("itemId");
+      const item = state.items.find(i => i.id === itemId);
+      const unit = form.get("unit");
+      const quantity = Number(form.get("quantity"));
+      const conversion = unit === "pcs" ? 1 : item.conversion;
+
+      if (!item) {
+        showToast("Barang tidak ditemukan", "error");
+        return;
+      }
+
+      if (state.modal === "out") {
+        const currentStock = stockFor(item.id);
+        const requestedStock = quantity * conversion;
+
+        if (requestedStock > currentStock) {
+          showToast(
+            `Stok tidak mencukupi. Tersedia ${currentStock} pcs.`,
+            "error"
+          );
+          return;
+        }
+      }
+
+      state.transactions.push({
+        id: crypto.randomUUID(),
+        itemId,
+        type: state.modal,
+        quantity,
+        unit,
+        conversion,
+        date: form.get("date"),
+        note: form.get("note").trim()
+      });
+
+      saveData();
+      closeModal();
+      renderPageContent();
+      showToast("Transaksi berhasil disimpan");
+    }
+
+    function closeModal() {
+      document.getElementById("modalBg")?.remove();
+      state.modal = null;
+    }
+
+    render();
+  </script>
+</body>
+</html>
