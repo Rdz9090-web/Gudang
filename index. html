@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GudangPro - Sistem Manajemen Gudang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased">
+    <div class="min-h-screen flex flex-col md:flex-row">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="bg-slate-900 text-white w-full md:w-64 flex-shrink-0 hidden md:block sidebar-transition z-20">
+            <div class="p-4 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-blue-600 p-2 rounded-lg"><i class="fas fa-boxes-stacked text-xl text-white"></i></div>
+                    <span class="text-xl font-bold tracking-wider">GudangPro</span>
+                </div>
+            </div>
+            <nav class="p-4 space-y-1">
+                <button onclick="switchTab('overview')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-blue-400 bg-slate-800" id="btn-overview">
+                    <i class="fas fa-chart-pie w-5"></i><span>Ringkasan</span>
+                </button>
+                <button onclick="switchTab('items')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-items">
+                    <i class="fas fa-box w-5"></i><span>Daftar Barang</span>
+                </button>
+                <button onclick="switchTab('outbound')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-outbound">
+                    <i class="fas fa-box-open w-5"></i><span>Stok Keluar</span>
+                </button>
+                <button onclick="switchTab('opname')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-opname">
+                    <i class="fas fa-clipboard-check w-5"></i><span>Stok Opname</span>
+                </button>
+                <button onclick="switchTab('categories')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-categories">
+                    <i class="fas fa-tags w-5"></i><span>Master Kategori</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <!-- Header Bar -->
+            <header class="bg-white shadow-sm border-b border-gray-200 p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleSidebar()" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                    <h1 id="page-title" class="text-xl font-bold text-gray-800">Ringkasan Gudang</h1>
+                </div>
+            </header>
+
+            <!-- Dynamic Views Container -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                
+                <!-- VIEW 1: OVERVIEW -->
+                <section id="view-overview" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-boxes text-2xl"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Total Jenis Barang</p>
+                                <h3 id="stat-total-items" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fas fa-cubes text-2xl"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Total Stok (Satuan Terkecil)</p>
+                                <h3 id="stat-total-qty" class="text-2xl font-bold text-gray-800">0 pcs</h3>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+                            <div class="p-3 bg-amber-50 text-amber-600 rounded-lg"><i class="fas fa-triangle-exclamation text-2xl"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Stok Menipis (< 10 Pcs)</p>
+                                <h3 id="stat-low-stock" class="text-2xl font-bold text-gray-800">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Aksi Cepat</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="openModalItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
+                                <i class="fas fa-plus"></i><span>Tambah Barang Baru</span>
+                            </button>
+                            <button onclick="switchTab('outbound')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
+                                <i class="fas fa-minus"></i><span>Catat Barang Keluar</span>
+                            </button>
+                            <button onclick="switchTab('opname')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
+                                <i class="fas fa-clipboard-check"></i><span>Stok Opname</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: DAFTAR BARANG -->
+                <section id="view-items" class="hidden space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto flex-1">
+                            <input type="text" id="search-item" oninput="renderItems()" placeholder="Cari barcode, nama, jenis, atau lokasi..." class="w-full md:w-64 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            
+                            <!-- Sort Options -->
+                            <select id="sort-items" onchange="renderItems()" class="w-full md:w-48 px-3 py-2 border rounded-lg text-sm bg-white font-medium text-gray-700">
+                                <option value="name-asc">Urut: Nama (A - Z)</option>
+                                <option value="name-desc">Urut: Nama (Z - A)</option>
+                                <option value="barcode-asc">Urut: Barcode / SKU</option>
+                                <option value="category-asc">Urut: Jenis / Kategori</option>
+                            </select>
+                        </div>
+
+                        <button onclick="openModalItem()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                            + Tambah Barang
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-600">
+                            <thead class="bg-gray-50 border-b text-gray-700 font-semibold uppercase text-xs tracking-wider">
+                                <tr>
+                                    <th class="p-4">Barcode / SKU</th>
+                                    <th class="p-4">Nama Barang</th>
+                                    <th class="p-4">Jenis</th>
+                                    <th class="p-4">Lokasi Gudang</th>
+                                    <th class="p-4">Rincian Satuan & Konversi</th>
+                                    <th class="p-4">Total Stok (Pcs)</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-items-body" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: BARANG KELUAR -->
+                <section id="view-outbound" class="hidden space-y-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 max-w-xl">
+                        <h2 class="text-lg font-bold text-gray-800 mb-2">Catat Barang Keluar</h2>
+                        <form onsubmit="saveOutbound(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang *</label>
+                                <select id="outbound-item-id" required class="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                    <option value="">-- Pilih Barang --</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Keluar *</label>
+                                    <input type="number" id="outbound-qty" min="1" required class="w-full p-2.5 border rounded-lg text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Satuan *</label>
+                                    <select id="outbound-unit-type" required class="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                        <option value="pcs">Pcs (Terkecil)</option>
+                                        <option value="pack">Pack / Dus Utama</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Tujuan / Keterangan *</label>
+                                <input type="text" id="outbound-note" placeholder="Misal: Penjualan toko, kirim ke Cabang B" required class="w-full p-2.5 border rounded-lg text-sm">
+                            </div>
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                                Simpan Transaksi Keluar
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <h3 class="text-md font-bold text-gray-800 mb-3">Riwayat Barang Keluar</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 border-b text-xs uppercase font-semibold text-gray-500">
+                                    <tr>
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama Barang</th>
+                                        <th class="p-3">Jumlah Keluar</th>
+                                        <th class="p-3">Keterangan / Tujuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-outbound-logs" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: STOK OPNAME -->
+                <section id="view-opname" class="hidden space-y-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 max-w-xl">
+                        <h2 class="text-lg font-bold text-gray-800 mb-2">Penyesuaian Stok (Stok Opname)</h2>
+                        <form onsubmit="saveOpname(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang</label>
+                                <select id="opname-item-id" onchange="updateOpnameCurrentQty()" required class="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                    <option value="">-- Pilih Barang --</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">Stok Sistem (Pcs)</label>
+                                    <input type="number" id="opname-system-qty" readonly class="w-full p-2.5 bg-gray-100 border rounded-lg text-sm font-bold text-gray-700">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Stok Fisik Nyata (Pcs)</label>
+                                    <input type="number" id="opname-real-qty" required min="0" class="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penyesuaian</label>
+                                <input type="text" id="opname-note" placeholder="Misal: Barang hilang, rusak, atau salah hitung" required class="w-full p-2.5 border rounded-lg text-sm">
+                            </div>
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">
+                                Simpan Penyesuaian
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <h3 class="text-md font-bold text-gray-800 mb-3">Riwayat Stok Opname</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 border-b text-xs uppercase font-semibold text-gray-500">
+                                    <tr>
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama Barang</th>
+                                        <th class="p-3">Stok Lama</th>
+                                        <th class="p-3">Stok Baru</th>
+                                        <th class="p-3">Selisih</th>
+                                        <th class="p-3">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-opname-logs" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: MASTER CATEGORIES -->
+                <section id="view-categories" class="hidden space-y-4 max-w-2xl">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <h2 class="text-md font-bold text-gray-800 mb-3">Tambah Jenis / Kategori Baru</h2>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-category-name" placeholder="Nama Jenis (mis: Elektronik, Sembako)" class="flex-1 p-2 border rounded-lg text-sm">
+                            <button onclick="addCategory()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Tambah</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <h3 class="text-md font-bold text-gray-800 mb-3">Daftar Jenis Barang</h3>
+                        <ul id="list-categories" class="divide-y divide-gray-100"></ul>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL: INPUT / EDIT BARANG -->
+    <div id="modal-item" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 id="modal-item-title" class="font-bold text-lg text-gray-800">Tambah Barang Baru</h3>
+                <button onclick="closeModalItem()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="saveItem(event)" class="space-y-3">
+                <input type="hidden" id="item-id">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Barcode / Kode SKU *</label>
+                    <input type="text" id="item-barcode" placeholder="Contoh: 89912345678" required class="w-full p-2 border rounded-lg text-sm font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Barang *</label>
+                    <input type="text" id="item-name" required class="w-full p-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis / Kategori *</label>
+                    <select id="item-category" required class="w-full p-2 border rounded-lg text-sm bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Lokasi di Gudang *</label>
+                    <input type="text" id="item-location" placeholder="Contoh: Rak A-2, Lemari B" required class="w-full p-2 border rounded-lg text-sm">
+                </div>
+                
+                <!-- Konversi Satuan -->
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                    <p class="text-xs font-bold text-slate-700">Pengaturan Konversi Satuan:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase">Satuan Utama (Besar)</label>
+                            <input type="text" id="item-main-unit" placeholder="Misal: Dus / Pack" required class="w-full p-2 border rounded-lg text-sm bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-500 uppercase">Isi (Pcs Terkecil)</label>
+                            <input type="number" id="item-conversion" placeholder="Misal: 20" required min="1" class="w-full p-2 border rounded-lg text-sm bg-white">
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-gray-500 italic block">Contoh: 1 Dus isi 20 Pcs. Maka ketik Satuan: <b>Dus</b>, Isi: <b>20</b>.</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Stok Awal (Satuan Utama)</label>
+                        <input type="number" id="item-qty-main" required min="0" placeholder="Jumlah Dus/Pack" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Sisa Eceran (Pcs)</label>
+                        <input type="number" id="item-qty-sub" required min="0" value="0" placeholder="Sisa Pcs" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t">
+                    <button type="button" onclick="closeModalItem()" class="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Simpan Barang</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT JAVASCRIPT -->
+    <script>
+        let db = {
+            items: JSON.parse(localStorage.getItem('gp_items')) || [],
+            categories: JSON.parse(localStorage.getItem('gp_categories')) || ['Umum', 'Elektronik', 'Makanan/Sembako', 'Pakaian'],
+            opnameLogs: JSON.parse(localStorage.getItem('gp_opname_logs')) || [],
+            outboundLogs: JSON.parse(localStorage.getItem('gp_outbound_logs')) || []
+        };
+
+        function saveData() {
+            localStorage.setItem('gp_items', JSON.stringify(db.items));
+            localStorage.setItem('gp_categories', JSON.stringify(db.categories));
+            localStorage.setItem('gp_opname_logs', JSON.stringify(db.opnameLogs));
+            localStorage.setItem('gp_outbound_logs', JSON.stringify(db.outboundLogs));
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-slate-800', 'text-blue-400');
+                el.classList.add('text-gray-300');
+            });
+
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tab}`);
+            if(activeBtn) activeBtn.classList.add('bg-slate-800', 'text-blue-400');
+
+            const titles = {
+                overview: 'Ringkasan Gudang',
+                items: 'Daftar Barang',
+                outbound: 'Stok Keluar',
+                opname: 'Stok Opname',
+                categories: 'Master Kategori'
+            };
+            document.getElementById('page-title').innerText = titles[tab];
+            renderAll();
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('list-categories');
+            const select = document.getElementById('item-category');
+            list.innerHTML = ''; select.innerHTML = '';
+
+            db.categories.forEach((cat, idx) => {
+                list.innerHTML += `<li class="py-2.5 flex justify-between items-center text-sm"><span>${cat}</span><button onclick="deleteCategory(${idx})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button></li>`;
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function addCategory() {
+            const val = document.getElementById('new-category-name').value.trim();
+            if(val && !db.categories.includes(val)) {
+                db.categories.push(val);
+                document.getElementById('new-category-name').value = '';
+                saveData(); renderCategories();
+            }
+        }
+
+        function deleteCategory(idx) {
+            db.categories.splice(idx, 1);
+            saveData(); renderCategories();
+        }
+
+        // ITEMS CRUD & SORTING
+        function openModalItem(id = null) {
+            document.getElementById('modal-item').classList.remove('hidden');
+            renderCategories();
+
+            if(id) {
+                const item = db.items.find(i => i.id === id);
+                document.getElementById('modal-item-title').innerText = 'Edit Barang';
+                document.getElementById('item-id').value = item.id;
+                document.getElementById('item-barcode').value = item.barcode;
+                document.getElementById('item-name').value = item.name;
+                document.getElementById('item-category').value = item.category;
+                document.getElementById('item-location').value = item.location;
+                document.getElementById('item-main-unit').value = item.mainUnit;
+                document.getElementById('item-conversion').value = item.conversion;
+                
+                // Hitung kembali ke unit utama + sisa
+                const mainQty = Math.floor(item.totalPcs / item.conversion);
+                const subQty = item.totalPcs % item.conversion;
+                document.getElementById('item-qty-main').value = mainQty;
+                document.getElementById('item-qty-sub').value = subQty;
+            } else {
+                document.getElementById('modal-item-title').innerText = 'Tambah Barang Baru';
+                document.getElementById('item-id').value = '';
+                document.getElementById('item-barcode').value = '';
+                document.getElementById('item-name').value = '';
+                document.getElementById('item-location').value = '';
+                document.getElementById('item-main-unit').value = 'Dus';
+                document.getElementById('item-conversion').value = '20';
+                document.getElementById('item-qty-main').value = '0';
+                document.getElementById('item-qty-sub').value = '0';
+            }
+        }
+
+        function closeModalItem() {
+            document.getElementById('modal-item').classList.add('hidden');
+        }
+
+        function saveItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            const mainQty = parseInt(document.getElementById('item-qty-main').value) || 0;
+            const subQty = parseInt(document.getElementById('item-qty-sub').value) || 0;
+            const conversion = parseInt(document.getElementById('item-conversion').value) || 1;
+
+            const totalPcs = (mainQty * conversion) + subQty;
+
+            const itemData = {
+                id: id ? parseInt(id) : Date.now(),
+                barcode: document.getElementById('item-barcode').value.trim(),
+                name: document.getElementById('item-name').value.trim(),
+                category: document.getElementById('item-category').value,
+                location: document.getElementById('item-location').value.trim(),
+                mainUnit: document.getElementById('item-main-unit').value.trim(),
+                conversion: conversion,
+                totalPcs: totalPcs
+            };
+
+            if(id) {
+                const idx = db.items.findIndex(i => i.id === parseInt(id));
+                db.items[idx] = itemData;
+            } else {
+                db.items.push(itemData);
+            }
+
+            saveData();
+            closeModalItem();
+            renderAll();
+        }
+
+        function deleteItem(id) {
+            if(confirm('Yakin ingin menghapus barang ini?')) {
+                db.items = db.items.filter(i => i.id !== id);
+                saveData(); renderAll();
+            }
+        }
+
+        function renderItems() {
+            const tbody = document.getElementById('table-items-body');
+            const search = document.getElementById('search-item')?.value.toLowerCase() || '';
+            const sortVal = document.getElementById('sort-items')?.value || 'name-asc';
+            tbody.innerHTML = '';
+
+            let filtered = db.items.filter(i => 
+                i.name.toLowerCase().includes(search) || 
+                i.barcode.toLowerCase().includes(search) ||
+                i.category.toLowerCase().includes(search) || 
+                i.location.toLowerCase().includes(search)
+            );
+
+            // Sorting Functionality
+            filtered.sort((a, b) => {
+                if (sortVal === 'name-asc') return a.name.localeCompare(b.name);
+                if (sortVal === 'name-desc') return b.name.localeCompare(a.name);
+                if (sortVal === 'barcode-asc') return a.barcode.localeCompare(b.barcode);
+                if (sortVal === 'category-asc') return a.category.localeCompare(b.category);
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Belum ada barang terdaftar.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const mainQty = Math.floor(item.totalPcs / item.conversion);
+                const subQty = item.totalPcs % item.conversion;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-4 font-mono font-bold text-slate-700">${item.barcode}</td>
+                        <td class="p-4 font-semibold text-gray-800">${item.name}</td>
+                        <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium">${item.category}</span></td>
+                        <td class="p-4"><i class="fas fa-location-dot text-gray-400 mr-1"></i>${item.location}</td>
+                        <td class="p-4 text-xs text-gray-600">
+                            <b>${mainQty}</b> ${item.mainUnit} ${subQty > 0 ? `+ <b>${subQty}</b> Pcs` : ''} 
+                            <br><span class="text-[10px] text-gray-400">(1 ${item.mainUnit} = ${item.conversion} Pcs)</span>
+                        </td>
+                        <td class="p-4 font-bold ${item.totalPcs < 10 ? 'text-red-500' : 'text-emerald-600'}">${item.totalPcs} pcs</td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="openModalItem(${item.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // BARANG KELUAR
+        function renderOutboundSelect() {
+            const select = document.getElementById('outbound-item-id');
+            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+            db.items.forEach(i => {
+                select.innerHTML += `<option value="${i.id}">${i.name} (Stok: ${i.totalPcs} Pcs)</option>`;
+            });
+        }
+
+        function saveOutbound(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('outbound-item-id').value);
+            const qtyInput = parseInt(document.getElementById('outbound-qty').value);
+            const unitType = document.getElementById('outbound-unit-type').value;
+            const note = document.getElementById('outbound-note').value;
+
+            const item = db.items.find(i => i.id === itemId);
+            if(!item) return;
+
+            const deductedPcs = unitType === 'pack' ? (qtyInput * item.conversion) : qtyInput;
+
+            if(deductedPcs > item.totalPcs) {
+                alert('Stok tidak mencukupi untuk pengeluaran ini!');
+                return;
+            }
+
+            item.totalPcs -= deductedPcs;
+
+            db.outboundLogs.unshift({
+                date: new Date().toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                itemName: item.name,
+                qtyText: `${qtyInput} ${unitType === 'pack' ? item.mainUnit : 'Pcs'} (${deductedPcs} Pcs)`,
+                note: note
+            });
+
+            saveData();
+            document.getElementById('outbound-qty').value = '';
+            document.getElementById('outbound-note').value = '';
+            renderAll();
+            alert('Transaksi barang keluar berhasil disimpan!');
+        }
+
+        function renderOutboundLogs() {
+            const tbody = document.getElementById('table-outbound-logs');
+            tbody.innerHTML = '';
+            if(db.outboundLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-400">Belum ada catatan barang keluar.</td></tr>`;
+                return;
+            }
+            db.outboundLogs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-xs">${log.date}</td>
+                        <td class="p-3 font-semibold">${log.itemName}</td>
+                        <td class="p-3 font-bold text-red-600">-${log.qtyText}</td>
+                        <td class="p-3 text-gray-600">${log.note}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // STOK OPNAME
+        function renderOpnameSelect() {
+            const select = document.getElementById('opname-item-id');
+            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+            db.items.forEach(i => {
+                select.innerHTML += `<option value="${i.id}">${i.name} (${i.totalPcs} Pcs)</option>`;
+            });
+        }
+
+        function updateOpnameCurrentQty() {
+            const id = document.getElementById('opname-item-id').value;
+            const item = db.items.find(i => i.id === parseInt(id));
+            document.getElementById('opname-system-qty').value = item ? item.totalPcs : 0;
+        }
+
+        function saveOpname(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('opname-item-id').value);
+            const realQty = parseInt(document.getElementById('opname-real-qty').value);
+            const note = document.getElementById('opname-note').value;
+
+            const item = db.items.find(i => i.id === itemId);
+            if(!item) return;
+
+            const diff = realQty - item.totalPcs;
+            const oldQty = item.totalPcs;
+            item.totalPcs = realQty;
+
+            db.opnameLogs.unshift({
+                date: new Date().toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                itemName: item.name,
+                oldQty: `${oldQty} Pcs`,
+                newQty: `${realQty} Pcs`,
+                diff: diff > 0 ? `+${diff} Pcs` : `${diff} Pcs`,
+                note: note
+            });
+
+            saveData();
+            document.getElementById('opname-real-qty').value = '';
+            document.getElementById('opname-note').value = '';
+            renderAll();
+            alert('Stok opname berhasil disimpan!');
+        }
+
+        function renderOpnameLogs() {
+            const tbody = document.getElementById('table-opname-logs');
+            tbody.innerHTML = '';
+            if(db.opnameLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-gray-400">Belum ada riwayat stok opname.</td></tr>`;
+                return;
+            }
+            db.opnameLogs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-xs">${log.date}</td>
+                        <td class="p-3 font-semibold">${log.itemName}</td>
+                        <td class="p-3">${log.oldQty}</td>
+                        <td class="p-3 font-bold text-emerald-600">${log.newQty}</td>
+                        <td class="p-3 font-bold ${parseInt(log.diff) < 0 ? 'text-red-500' : 'text-blue-600'}">${log.diff}</td>
+                        <td class="p-3 text-gray-500">${log.note}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderOverview() {
+            document.getElementById('stat-total-items').innerText = db.items.length;
+            document.getElementById('stat-total-qty').innerText = `${db.items.reduce((acc, i) => acc + i.totalPcs, 0)} pcs`;
+            document.getElementById('stat-low-stock').innerText = db.items.filter(i => i.totalPcs < 10).length;
+        }
+
+        function renderAll() {
+            renderOverview();
+            renderItems();
+            renderCategories();
+            renderOutboundSelect();
+            renderOutboundLogs();
+            renderOpnameSelect();
+            renderOpnameLogs();
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>
