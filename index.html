@@ -28,8 +28,11 @@
                 <button onclick="switchTab('items')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-items">
                     <i class="fas fa-box w-5"></i><span>Daftar Barang</span>
                 </button>
+                <button onclick="switchTab('inbound')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-inbound">
+                    <i class="fas fa-box-archive w-5"></i><span>Barang Masuk</span>
+                </button>
                 <button onclick="switchTab('outbound')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-outbound">
-                    <i class="fas fa-box-open w-5"></i><span>Stok Keluar</span>
+                    <i class="fas fa-box-open w-5"></i><span>Barang Keluar</span>
                 </button>
                 <button onclick="switchTab('opname')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-left transition text-gray-300" id="btn-opname">
                     <i class="fas fa-clipboard-check w-5"></i><span>Stok Opname</span>
@@ -84,14 +87,14 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Aksi Cepat</h2>
                         <div class="flex flex-wrap gap-3">
-                            <button onclick="openModalItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
-                                <i class="fas fa-plus"></i><span>Tambah Barang Baru</span>
+                            <button onclick="openModalItem('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
+                                <i class="fas fa-plus"></i><span>+ Tambah Barang Baru</span>
+                            </button>
+                            <button onclick="openModalItem('existing')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
+                                <i class="fas fa-box-archive"></i><span>+ Stok Barang Masuk</span>
                             </button>
                             <button onclick="switchTab('outbound')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
                                 <i class="fas fa-minus"></i><span>Catat Barang Keluar</span>
-                            </button>
-                            <button onclick="switchTab('opname')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg flex items-center space-x-2 text-sm font-medium transition">
-                                <i class="fas fa-clipboard-check"></i><span>Stok Opname</span>
                             </button>
                         </div>
                     </div>
@@ -101,9 +104,8 @@
                 <section id="view-items" class="hidden space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                         <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto flex-1">
-                            <input type="text" id="search-item" oninput="renderItems()" placeholder="Cari barcode, nama, jenis, atau lokasi..." class="w-full md:w-64 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <input type="text" id="search-item" oninput="renderItems()" placeholder="Cari barcode, nama, jenis, lokasi..." class="w-full md:w-64 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                             
-                            <!-- Sort Options -->
                             <select id="sort-items" onchange="renderItems()" class="w-full md:w-48 px-3 py-2 border rounded-lg text-sm bg-white font-medium text-gray-700">
                                 <option value="name-asc">Urut: Nama (A - Z)</option>
                                 <option value="name-desc">Urut: Nama (Z - A)</option>
@@ -112,9 +114,14 @@
                             </select>
                         </div>
 
-                        <button onclick="openModalItem()" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                            + Tambah Barang
-                        </button>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button onclick="openModalItem('new')" class="flex-1 md:flex-none bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                                + Barang Baru
+                            </button>
+                            <button onclick="openModalItem('existing')" class="flex-1 md:flex-none bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition">
+                                + Tambah Stok
+                            </button>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
@@ -135,14 +142,39 @@
                     </div>
                 </section>
 
-                <!-- VIEW 3: BARANG KELUAR -->
+                <!-- VIEW 3: BARANG MASUK LOGS -->
+                <section id="view-inbound" class="hidden space-y-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-md font-bold text-gray-800">Riwayat Barang Masuk</h3>
+                            <button onclick="openModalItem('existing')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-700">
+                                + Input Stok Masuk
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 border-b text-xs uppercase font-semibold text-gray-500">
+                                    <tr>
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Nama Barang</th>
+                                        <th class="p-3">Jumlah Masuk</th>
+                                        <th class="p-3">Catatan / Supplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-inbound-logs" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: BARANG KELUAR -->
                 <section id="view-outbound" class="hidden space-y-4">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 max-w-xl">
                         <h2 class="text-lg font-bold text-gray-800 mb-2">Catat Barang Keluar</h2>
                         <form onsubmit="saveOutbound(event)" class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang *</label>
-                                <select id="outbound-item-id" required class="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang (Barcode & Nama) *</label>
+                                <select id="outbound-item-id" required class="w-full p-2.5 border rounded-lg text-sm bg-white font-mono">
                                     <option value="">-- Pilih Barang --</option>
                                 </select>
                             </div>
@@ -187,14 +219,14 @@
                     </div>
                 </section>
 
-                <!-- VIEW 4: STOK OPNAME -->
+                <!-- VIEW 5: STOK OPNAME -->
                 <section id="view-opname" class="hidden space-y-4">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 max-w-xl">
                         <h2 class="text-lg font-bold text-gray-800 mb-2">Penyesuaian Stok (Stok Opname)</h2>
                         <form onsubmit="saveOpname(event)" class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang</label>
-                                <select id="opname-item-id" onchange="updateOpnameCurrentQty()" required class="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Barang (Barcode & Nama) *</label>
+                                <select id="opname-item-id" onchange="updateOpnameCurrentQty()" required class="w-full p-2.5 border rounded-lg text-sm bg-white font-mono">
                                     <option value="">-- Pilih Barang --</option>
                                 </select>
                             </div>
@@ -238,7 +270,7 @@
                     </div>
                 </section>
 
-                <!-- VIEW 5: MASTER CATEGORIES -->
+                <!-- VIEW 6: MASTER CATEGORIES -->
                 <section id="view-categories" class="hidden space-y-4 max-w-2xl">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                         <h2 class="text-md font-bold text-gray-800 mb-3">Tambah Jenis / Kategori Baru</h2>
@@ -257,14 +289,22 @@
         </div>
     </div>
 
-    <!-- MODAL: INPUT / EDIT BARANG -->
+    <!-- MODAL: INPUT / EDIT / RESTOK BARANG -->
     <div id="modal-item" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="modal-item-title" class="font-bold text-lg text-gray-800">Tambah Barang Baru</h3>
+                <h3 id="modal-item-title" class="font-bold text-lg text-gray-800">Tambah / Masuk Barang</h3>
                 <button onclick="closeModalItem()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form onsubmit="saveItem(event)" class="space-y-3">
+
+            <!-- TAB SELECTION: NEW VS EXISTING -->
+            <div class="flex border-b text-sm font-medium text-gray-500">
+                <button type="button" id="tab-mode-new" onclick="setModalMode('new')" class="py-2 px-4 border-b-2 border-blue-600 text-blue-600 font-bold flex-1 text-center">Barang Baru</button>
+                <button type="button" id="tab-mode-existing" onclick="setModalMode('existing')" class="py-2 px-4 border-b-2 border-transparent flex-1 text-center">Stok Masuk (Barang Lama)</button>
+            </div>
+
+            <!-- FORM 1: BARANG BARU -->
+            <form id="form-item-new" onsubmit="saveItemNew(event)" class="space-y-3">
                 <input type="hidden" id="item-id">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Barcode / Kode SKU *</label>
@@ -283,7 +323,6 @@
                     <input type="text" id="item-location" placeholder="Contoh: Rak A-2, Lemari B" required class="w-full p-2 border rounded-lg text-sm">
                 </div>
                 
-                <!-- Konversi Satuan -->
                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
                     <p class="text-xs font-bold text-slate-700">Pengaturan Konversi Satuan:</p>
                     <div class="grid grid-cols-2 gap-2">
@@ -296,7 +335,6 @@
                             <input type="number" id="item-conversion" placeholder="Misal: 20" required min="1" class="w-full p-2 border rounded-lg text-sm bg-white">
                         </div>
                     </div>
-                    <span class="text-[11px] text-gray-500 italic block">Contoh: 1 Dus isi 20 Pcs. Maka ketik Satuan: <b>Dus</b>, Isi: <b>20</b>.</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -315,6 +353,39 @@
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Simpan Barang</button>
                 </div>
             </form>
+
+            <!-- FORM 2: STOK MASUK (BARANG LAMA) -->
+            <form id="form-item-existing" onsubmit="saveItemInbound(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Item dari List (Barcode & Nama) *</label>
+                    <select id="inbound-item-id" required class="w-full p-2.5 border rounded-lg text-sm bg-white font-mono"></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jumlah Masuk *</label>
+                        <input type="number" id="inbound-qty-input" required min="1" placeholder="Misal: 5" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Satuan *</label>
+                        <select id="inbound-unit-type" required class="w-full p-2 border rounded-lg text-sm bg-white">
+                            <option value="pack">Pack / Dus Utama</option>
+                            <option value="pcs">Pcs (Satuan Terkecil)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan / Supplier *</label>
+                    <input type="text" id="inbound-note" placeholder="Misal: Restok Toko Utama, PT ABC" required class="w-full p-2 border rounded-lg text-sm">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t">
+                    <button type="button" onclick="closeModalItem()" class="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">+ Tambah Stok Masuk</button>
+                </div>
+            </form>
+
         </div>
     </div>
 
@@ -324,7 +395,8 @@
             items: JSON.parse(localStorage.getItem('gp_items')) || [],
             categories: JSON.parse(localStorage.getItem('gp_categories')) || ['Umum', 'Elektronik', 'Makanan/Sembako', 'Pakaian'],
             opnameLogs: JSON.parse(localStorage.getItem('gp_opname_logs')) || [],
-            outboundLogs: JSON.parse(localStorage.getItem('gp_outbound_logs')) || []
+            outboundLogs: JSON.parse(localStorage.getItem('gp_outbound_logs')) || [],
+            inboundLogs: JSON.parse(localStorage.getItem('gp_inbound_logs')) || []
         };
 
         function saveData() {
@@ -332,6 +404,7 @@
             localStorage.setItem('gp_categories', JSON.stringify(db.categories));
             localStorage.setItem('gp_opname_logs', JSON.stringify(db.opnameLogs));
             localStorage.setItem('gp_outbound_logs', JSON.stringify(db.outboundLogs));
+            localStorage.setItem('gp_inbound_logs', JSON.stringify(db.inboundLogs));
         }
 
         function toggleSidebar() {
@@ -352,7 +425,8 @@
             const titles = {
                 overview: 'Ringkasan Gudang',
                 items: 'Daftar Barang',
-                outbound: 'Stok Keluar',
+                inbound: 'Barang Masuk',
+                outbound: 'Barang Keluar',
                 opname: 'Stok Opname',
                 categories: 'Master Kategori'
             };
@@ -385,14 +459,50 @@
             saveData(); renderCategories();
         }
 
-        // ITEMS CRUD & SORTING
-        function openModalItem(id = null) {
+        // POPULATE DROPDOWNS WITH BARCODES
+        function populateItemDropdowns() {
+            const dropdownIds = ['inbound-item-id', 'outbound-item-id', 'opname-item-id'];
+            
+            dropdownIds.forEach(id => {
+                const select = document.getElementById(id);
+                if(!select) return;
+                select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+                
+                db.items.forEach(i => {
+                    select.innerHTML += `<option value="${i.id}">[${i.barcode}] ${i.name} (Stok: ${i.totalPcs} Pcs)</option>`;
+                });
+            });
+        }
+
+        // MODAL TAB SWITCHING
+        function setModalMode(mode) {
+            const tabNew = document.getElementById('tab-mode-new');
+            const tabExisting = document.getElementById('tab-mode-existing');
+            const formNew = document.getElementById('form-item-new');
+            const formExisting = document.getElementById('form-item-existing');
+
+            if(mode === 'new') {
+                tabNew.className = "py-2 px-4 border-b-2 border-blue-600 text-blue-600 font-bold flex-1 text-center";
+                tabExisting.className = "py-2 px-4 border-b-2 border-transparent flex-1 text-center";
+                formNew.classList.remove('hidden');
+                formExisting.classList.add('hidden');
+            } else {
+                tabExisting.className = "py-2 px-4 border-b-2 border-emerald-600 text-emerald-600 font-bold flex-1 text-center";
+                tabNew.className = "py-2 px-4 border-b-2 border-transparent flex-1 text-center";
+                formExisting.classList.remove('hidden');
+                formNew.classList.add('hidden');
+                populateItemDropdowns();
+            }
+        }
+
+        function openModalItem(mode = 'new', editId = null) {
             document.getElementById('modal-item').classList.remove('hidden');
             renderCategories();
+            populateItemDropdowns();
 
-            if(id) {
-                const item = db.items.find(i => i.id === id);
-                document.getElementById('modal-item-title').innerText = 'Edit Barang';
+            if(editId) {
+                setModalMode('new');
+                const item = db.items.find(i => i.id === editId);
                 document.getElementById('item-id').value = item.id;
                 document.getElementById('item-barcode').value = item.barcode;
                 document.getElementById('item-name').value = item.name;
@@ -401,13 +511,12 @@
                 document.getElementById('item-main-unit').value = item.mainUnit;
                 document.getElementById('item-conversion').value = item.conversion;
                 
-                // Hitung kembali ke unit utama + sisa
                 const mainQty = Math.floor(item.totalPcs / item.conversion);
                 const subQty = item.totalPcs % item.conversion;
                 document.getElementById('item-qty-main').value = mainQty;
                 document.getElementById('item-qty-sub').value = subQty;
             } else {
-                document.getElementById('modal-item-title').innerText = 'Tambah Barang Baru';
+                setModalMode(mode);
                 document.getElementById('item-id').value = '';
                 document.getElementById('item-barcode').value = '';
                 document.getElementById('item-name').value = '';
@@ -423,7 +532,7 @@
             document.getElementById('modal-item').classList.add('hidden');
         }
 
-        function saveItem(e) {
+        function saveItemNew(e) {
             e.preventDefault();
             const id = document.getElementById('item-id').value;
             const mainQty = parseInt(document.getElementById('item-qty-main').value) || 0;
@@ -455,6 +564,32 @@
             renderAll();
         }
 
+        function saveItemInbound(e) {
+            e.preventDefault();
+            const itemId = parseInt(document.getElementById('inbound-item-id').value);
+            const qtyInput = parseInt(document.getElementById('inbound-qty-input').value);
+            const unitType = document.getElementById('inbound-unit-type').value;
+            const note = document.getElementById('inbound-note').value;
+
+            const item = db.items.find(i => i.id === itemId);
+            if(!item) return;
+
+            const addedPcs = unitType === 'pack' ? (qtyInput * item.conversion) : qtyInput;
+            item.totalPcs += addedPcs;
+
+            db.inboundLogs.unshift({
+                date: new Date().toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                itemName: `[${item.barcode}] ${item.name}`,
+                qtyText: `+${qtyInput} ${unitType === 'pack' ? item.mainUnit : 'Pcs'} (${addedPcs} Pcs)`,
+                note: note
+            });
+
+            saveData();
+            closeModalItem();
+            renderAll();
+            alert('Stok barang berhasil ditambahkan!');
+        }
+
         function deleteItem(id) {
             if(confirm('Yakin ingin menghapus barang ini?')) {
                 db.items = db.items.filter(i => i.id !== id);
@@ -475,7 +610,6 @@
                 i.location.toLowerCase().includes(search)
             );
 
-            // Sorting Functionality
             filtered.sort((a, b) => {
                 if (sortVal === 'name-asc') return a.name.localeCompare(b.name);
                 if (sortVal === 'name-desc') return b.name.localeCompare(a.name);
@@ -504,7 +638,7 @@
                         </td>
                         <td class="p-4 font-bold ${item.totalPcs < 10 ? 'text-red-500' : 'text-emerald-600'}">${item.totalPcs} pcs</td>
                         <td class="p-4 text-center space-x-2">
-                            <button onclick="openModalItem(${item.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+                            <button onclick="openModalItem('new', ${item.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
@@ -512,15 +646,27 @@
             });
         }
 
-        // BARANG KELUAR
-        function renderOutboundSelect() {
-            const select = document.getElementById('outbound-item-id');
-            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
-            db.items.forEach(i => {
-                select.innerHTML += `<option value="${i.id}">${i.name} (Stok: ${i.totalPcs} Pcs)</option>`;
+        // INBOUND LOGS
+        function renderInboundLogs() {
+            const tbody = document.getElementById('table-inbound-logs');
+            tbody.innerHTML = '';
+            if(db.inboundLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-400">Belum ada riwayat barang masuk.</td></tr>`;
+                return;
+            }
+            db.inboundLogs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-xs">${log.date}</td>
+                        <td class="p-3 font-semibold">${log.itemName}</td>
+                        <td class="p-3 font-bold text-emerald-600">${log.qtyText}</td>
+                        <td class="p-3 text-gray-600">${log.note}</td>
+                    </tr>
+                `;
             });
         }
 
+        // OUTBOUND
         function saveOutbound(e) {
             e.preventDefault();
             const itemId = parseInt(document.getElementById('outbound-item-id').value);
@@ -542,7 +688,7 @@
 
             db.outboundLogs.unshift({
                 date: new Date().toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                itemName: item.name,
+                itemName: `[${item.barcode}] ${item.name}`,
                 qtyText: `${qtyInput} ${unitType === 'pack' ? item.mainUnit : 'Pcs'} (${deductedPcs} Pcs)`,
                 note: note
             });
@@ -574,14 +720,6 @@
         }
 
         // STOK OPNAME
-        function renderOpnameSelect() {
-            const select = document.getElementById('opname-item-id');
-            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
-            db.items.forEach(i => {
-                select.innerHTML += `<option value="${i.id}">${i.name} (${i.totalPcs} Pcs)</option>`;
-            });
-        }
-
         function updateOpnameCurrentQty() {
             const id = document.getElementById('opname-item-id').value;
             const item = db.items.find(i => i.id === parseInt(id));
@@ -603,7 +741,7 @@
 
             db.opnameLogs.unshift({
                 date: new Date().toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-                itemName: item.name,
+                itemName: `[${item.barcode}] ${item.name}`,
                 oldQty: `${oldQty} Pcs`,
                 newQty: `${realQty} Pcs`,
                 diff: diff > 0 ? `+${diff} Pcs` : `${diff} Pcs`,
@@ -648,9 +786,9 @@
             renderOverview();
             renderItems();
             renderCategories();
-            renderOutboundSelect();
+            populateItemDropdowns();
+            renderInboundLogs();
             renderOutboundLogs();
-            renderOpnameSelect();
             renderOpnameLogs();
         }
 
